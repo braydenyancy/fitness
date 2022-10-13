@@ -9,7 +9,6 @@ async function addActivityToRoutine({
   count,
   duration,
 }) {
-    
 }
 
 async function getRoutineActivitiesByRoutine({id}) {

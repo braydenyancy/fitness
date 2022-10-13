@@ -1,14 +1,93 @@
 // require in the database adapter functions as you write them (createUser, createActivity...)
-// const { } = require('./');
+const {
+  createUser,
+  createActivity,
+  createRoutine,
+  getRoutinesWithoutActivities,
+  getAllActivities,
+  addActivityToRoutine
+} = require('./');
+
+
 const client = require("./client")
 
 async function dropTables() {
-  console.log("Dropping All Tables...")
+  try {
+
+    console.log("Dropping All Tables...");
+
+    await client.query(`
+    DROP TABLE IF EXISTS users;
+    DROP TABLE IF EXISTS activities;
+    DROP TABLE IF EXISTS routines;
+    DROP TABLE IF EXISTS routine_activities;
+  `);
+
+    console.log("Finished dropping tables!")
+
+  } catch (error) {
+
+    console.error("Error dropping tables again")
+
+    throw error;
+  }
   // drop all tables, in the correct order
 }
 
 async function createTables() {
-  console.log("Starting to build tables...")
+  try {
+    console.log("Starting to create Tables!")
+
+    await client.query(`
+    CREATE TABLE users (
+      id SERIAL PRIMARY KEY,
+      username varchar(255) UNIQUE NOT NULL,
+      password varchar(255) NOT NULL
+    );
+  `);
+  console.log("users")
+
+    await client.query(`
+    CREATE TABLE activites (
+      id SERIAL PRIMARY KEY,
+      name varchar(255) UNIQUE NOT NULL,
+      description TEXT NOT NULL
+    );
+  `);
+  console.log("activities")
+
+    await client.query(`
+    CREATE TABLE routines (
+      id SERIAL PRIMARY KEY,
+      "creatorId" INTEGER REFERENCES users(id),
+      "isPublic" BOOLEAN DEFAULT false,
+      name varchar(255) UNIQUE NOT NULL,
+      goal TEXT NOT NULL
+    );
+    `);
+    console.log("routines")
+
+    await client.query(`
+    CREATE TABLE routine_activities (
+      id SERIAL PRIMARY KEY,
+      "routineId" INTEGER REFERENCES routines(id) UNIQUE,
+      "activityId" INTEGER REFERENCES activities(id) UNIQUE,
+      duration INTEGER
+      count INTEGER
+      UNIQUE ("routineId", "activityId")
+    );
+  `);
+  console.log("routine_activities")
+  
+    console.log("Finished building tables...")
+
+  } catch (error) {
+
+    console.error("Can't create Tables!")
+
+    throw error;
+
+  }
   // create all tables, in the correct order
 }
 
@@ -110,9 +189,9 @@ async function createInitialRoutines() {
 async function createInitialRoutineActivities() {
   console.log("starting to create routine_activities...")
   const [bicepRoutine, chestRoutine, legRoutine, cardioRoutine] =
-    await getRoutinesWithoutActivities()
+    await getRoutinesWithoutActivities();
   const [bicep1, bicep2, chest1, chest2, leg1, leg2, leg3] =
-    await getAllActivities()
+    await getAllActivities();
 
   const routineActivitiesToCreate = [
     {
