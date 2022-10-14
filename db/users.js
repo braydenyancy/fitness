@@ -1,4 +1,6 @@
+/* eslint-disable no-useless-catch */
 const client = require("./client");
+const bcrypt = require("bcrypt")
 
 // database functions
 
@@ -8,18 +10,16 @@ async function createUser({
   password
 }) {
   const SALT_COUNT = 10;
-
   const hashedPassword = await bcrypt.hash(password, SALT_COUNT)
-
   try {
 
     const { rows: [user] } = await client.query(`
     INSERT INTO users(username, password)
-    VALUES($1, $2, $3)
+    VALUES($1, $2)
     ON CONFLICT (username) DO NOTHING
     RETURNING *;
-  `, [username, password]);
-  
+  `, [username, hashedPassword]);
+
     return user;
   } catch (error) {
     throw error;
@@ -28,18 +28,18 @@ async function createUser({
 
 async function getUser({ username, password }) {
 
-  const user = await getUserByUserName(username);
+  // const user = await getUserByUserName(username);
 
-  const hashedPassword = user.password;
+  // const hashedPassword = user.password;
 
-  const isValid = await bcrypt.compare(password, hashedPassword)
+  // const isValid = await bcrypt.compare(password, hashedPassword)
 
 }
 
 async function getUserById(userId) {
   try {
     const { rows: [user] } = await client.query(`
-    SELECT id, username, name, active
+    SELECT username
     FROM users
     WHERE id=${userId}
   `);

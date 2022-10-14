@@ -1,4 +1,5 @@
 // require in the database adapter functions as you write them (createUser, createActivity...)
+const client = require("./client")
 const {
   createUser,
   createActivity,
@@ -9,7 +10,6 @@ const {
 } = require('./');
 
 
-const client = require("./client")
 
 async function dropTables() {
   try {
@@ -17,17 +17,17 @@ async function dropTables() {
     console.log("Dropping All Tables...");
 
     await client.query(`
-    DROP TABLE IF EXISTS users;
-    DROP TABLE IF EXISTS activities;
-    DROP TABLE IF EXISTS routines;
     DROP TABLE IF EXISTS routine_activities;
+    DROP TABLE IF EXISTS routines;
+    DROP TABLE IF EXISTS activities;
+    DROP TABLE IF EXISTS users;
   `);
 
     console.log("Finished dropping tables!")
 
   } catch (error) {
 
-    console.error("Error dropping tables again")
+    console.error("Error dropping tables")
 
     throw error;
   }
@@ -48,7 +48,7 @@ async function createTables() {
   console.log("users")
 
     await client.query(`
-    CREATE TABLE activites (
+    CREATE TABLE activities (
       id SERIAL PRIMARY KEY,
       name varchar(255) UNIQUE NOT NULL,
       description TEXT NOT NULL
@@ -65,15 +65,15 @@ async function createTables() {
       goal TEXT NOT NULL
     );
     `);
-    console.log("routines")
+  console.log("routines")
 
     await client.query(`
     CREATE TABLE routine_activities (
       id SERIAL PRIMARY KEY,
-      "routineId" INTEGER REFERENCES routines(id) UNIQUE,
-      "activityId" INTEGER REFERENCES activities(id) UNIQUE,
-      duration INTEGER
-      count INTEGER
+      "routineId" INTEGER REFERENCES routines(Id),
+      "activityId" INTEGER REFERENCES activities(Id),
+      duration INTEGER,
+      count INTEGER,
       UNIQUE ("routineId", "activityId")
     );
   `);
