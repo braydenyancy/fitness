@@ -1,6 +1,19 @@
+/* eslint-disable no-useless-catch */
 const client = require('./client')
 
 async function getRoutineActivityById(id) {
+  try {
+    const { rows: [routine_activity] } = await client.query(`
+    SELECT *
+    FROM routine_activities
+    WHERE id = $1;
+    `, [id]);
+
+    return routine_activity;
+  } catch(error) {
+    console.error("Error getting routines by id")
+    throw error;
+  }
 }
 
 async function addActivityToRoutine({
@@ -23,15 +36,75 @@ async function addActivityToRoutine({
 }
 
 async function getRoutineActivitiesByRoutine({ id }) {
+  try {
+
+    const { rows: [routine_activity] } = await client.query(`
+    SELECT *
+    FROM routine_activities
+    WHERE "routineId" = $1;
+    `, [id]);
+
+    return routine_activity;
+
+  }catch(error){
+    console.error("error getting routines by activity routing")
+  }
 }
 
 async function updateRoutineActivity({ id, ...fields }) {
+  const setString = Object.keys(fields)
+  .map((key, index)=> `"${key}"=$${index + 1}`).join(",")
+
+  if (setString === 0){
+    return
+  }
+
+  try {
+    const {rows : [routine_activity] } = await client.query(`
+    UPDATE routine_activities
+    SET ${setString}
+    WHERE id = ${id}
+    RETURNING *
+    `, Object.values(fields))
+
+    return routine_activity;
+  } catch (error) {
+    console.error("Error updating the routineActivity")
+    throw error
+  }
 }
 
 async function destroyRoutineActivity(id) {
+  
+  try {
+
+    const { rows: [deletedRoutine] } = await client.query(`
+      DELETE FROM routine_activities
+      WHERE id=$1
+      RETURNING *;`, [id]);
+
+    return deletedRoutine;
+  } catch (error) {
+    throw error
+  }
 }
 
 async function canEditRoutineActivity(routineActivityId, userId) {
+  
+  try {
+  
+    const { rows: [routine_activity] } = await client.query(`
+      SELECT *
+      FROM routine_activities 
+      JOIN routines ON routine_activities."routineId" = routines.id
+      WHERE "creatorId" = $1 AND routine_activities.id = $2;`,
+      [userId, routineActivityId]);
+    
+    return routine_activity;
+
+  } catch (error) {
+    throw error
+  }
 }
 
 module.exports = {
