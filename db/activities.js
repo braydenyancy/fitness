@@ -19,7 +19,7 @@ async function getAllActivities() {
     throw error
   }
 
-}
+} 
 
 async function getActivityById(id) {
   try {
