@@ -42,7 +42,8 @@ async function createTables() {
     CREATE TABLE users (
       id SERIAL PRIMARY KEY,
       username varchar(255) UNIQUE NOT NULL,
-      password varchar(255) NOT NULL
+      password varchar(255) NOT NULL,
+      active boolean DEFAULT true
     );
   `);
   console.log("users")
@@ -68,14 +69,14 @@ async function createTables() {
   console.log("routines")
 
     await client.query(`
-    CREATE TABLE routine_activities (
+    CREATE TABLE routine_activities(
       id SERIAL PRIMARY KEY,
       "routineId" INTEGER REFERENCES routines ( id ),
       "activityId" INTEGER REFERENCES activities ( id ),
       duration INTEGER,
       count INTEGER,
       UNIQUE ("routineId", "activityId")
-    );
+   );
   `);
   console.log("routine_activities")
   
