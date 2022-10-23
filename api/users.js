@@ -3,7 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { createUser, getUserByUsername, getPublicRoutinesByUser, getAllRoutinesByUser, getUserById } = require("../db");
 const { UserTakenError, PasswordTooShortError } = require('../errors')
-const { requireUser } = require('/utils')
+const { requireUser } = require('./utils')
 
 // POST /api/users/register
 router.post('/register', async (req, res, next) => {

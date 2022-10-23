@@ -1,24 +1,22 @@
 /* eslint-disable no-useless-catch */
 const client = require("./client");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
+const e = require("cors");
 
 // database functions
 
 // user functions
-async function createUser({
-  username, 
-  password
-}) {
-  const SALT_COUNT = 10;
-  const hashedPassword = await bcrypt.hash(password, SALT_COUNT)
+async function createUser({ username, password}) {
+
   try {
 
+    const SALT_COUNT = 10;
+    const hashedPassword = await bcrypt.hash(password, SALT_COUNT)
     const { rows: [user] } = await client.query(`
-    INSERT INTO users(username, password)
-    VALUES($1, $2)
-    ON CONFLICT (username) DO NOTHING
-    RETURNING *;
-  `, [username, hashedPassword]);
+      INSERT INTO users(username, password)
+      VALUES($1, $2)
+      ON CONFLICT (username) DO NOTHING
+      RETURNING id, username`, [username, hashedPassword]);
 
     return user;
   } catch (error) {
@@ -27,18 +25,21 @@ async function createUser({
 }
 
 async function getUser({ username, password }) {
-  // const user = await getUserByUserName(username);
-  // const hashedPassword = user.password;
-  // const isValid = await bcrypt.compare(password, hashedPassword)
-
+  
   try {
-    const { rows: [user] } = await client.query(`
-    SELECT id, username
-    FROM users
-    WHERE password = $1;
-    `, [password]);
+    const user = await getUserByUserName(username);
+    const hashedPassword = user.password;
+    const isValid = await bcrypt.compare(password, hashedPassword)
+    
+    if(isValid) {
+      delete user.password;
+      return user;
+    }
+
+    else return;  
   } catch(error){
-    console.error("Problem getting user")
+    throw error;
+    console.log(error)
   }
 
 }
