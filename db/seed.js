@@ -6,8 +6,6 @@ const { rebuildDB } = require('./seedData');
 
 console.log('STARTING DATABASE TEST')
 
-client.connect()
-
 rebuildDB()
   .catch(console.error)
   .finally(() => client.end());

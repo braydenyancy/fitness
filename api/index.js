@@ -80,5 +80,4 @@ router.use("/unknown", async(req ,res)=>{
     await res.status(404).send({
         message: 'Not a valid url'})
 })
-
-module.exports = router;
+module.exports = router
